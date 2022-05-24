@@ -1,4 +1,4 @@
-import {TEMPERATURE_SCALES} from "./utils";
+import {TEMPERATURE_SCALES} from "./utils.js";
 
 export class TemperatureConverter{
     scalesDictionary = {
