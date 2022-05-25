@@ -3,3 +3,10 @@ export const TEMPERATURE_SCALES = {
     Fahrenheit: "F",
     Kelvin: "K"
 }
+
+export const OPERATIONS = {
+    Add: "+",
+    Subtract: "-",
+    Multitply: "*",
+    Divide: "/"
+}

@@ -1,66 +1,59 @@
-import {TemperatureConverter} from "./temperature-converter.js";
+import {TemperatureConverter} from "./temperature-converter.js"
+import {OPERATIONS} from "./utils.js";
 
 export class TemperatureCalculator{
     #converter;
 
+    #operationsMap = {
+        [OPERATIONS.Add]: this.#add,
+        [OPERATIONS.Subtract]: this.#subtract,
+        [OPERATIONS.Multitply]: this.#multiply,
+        [OPERATIONS.Divide]: this.#divide,
+    }
+
     constructor(converter){
-        this.#converter = converter; 
+        this.#converter = converter;
     }
 
-    add(temperatures){
-       const equalsTemperatures =  this.#converTemperatures(temperatures);
-       const temperaturesTotal =  equalsTemperatures.reduce((acc, currentTemperature)=> acc + currentTemperature.value, 0);
-       return {value: temperaturesTotal, scale: equalsTemperatures[0].scale}
+    operate({temperatures, operation}){
+       const equalsTemperatures = this.#transformTemperature(temperatures);
+       const temperatureValues = equalsTemperatures.map(({value})=> value);
+
+       const scale = temperatures[0].scale;
+       const value = this.#operationsMap[operation](temperatureValues);
+
+       return {value, scale};
     }
 
-    subtract(temperatures){
-        const equalsTemperatures = this.#converTemperatures(temperatures);
-        const temperaturesTotal = equalsTemperatures
-        .map(({value})=> value)
-        .reduce((acc, currentTemperature) => acc - currentTemperature)
-
-        return {value: temperaturesTotal, scale: equalsTemperatures[0].scale}
+    #add(temperatures){
+        return temperatures.reduce((acc, currentTemperature)=> acc + currentTemperature );
     }
 
-    multiply(temperatures){
-        const equalsTemperatures = this.#converTemperatures(temperatures);
-        const temperaturesTotal =  equalsTemperatures        
-        .map(({value})=> value)
-        .reduce((acc, currentTemperature)=> acc * currentTemperature);
-
-        return {value: temperaturesTotal, scale: equalsTemperatures[0].scale} 
+    #subtract(temperatures){
+        return temperatures.reduce((acc, currentTemperature)=> acc - currentTemperature);
     }
 
-    divide(temperatures){
-        const equalsTemperatures = this.#converTemperatures(temperatures);
-        
-        const hasZero = equalsTemperatures.some(({value})=> value === 0);
+    #multiply(temperatures){
+        return temperatures.reduce((acc, currentTemperature)=> acc * currentTemperature);
+    }
+
+    #divide(temperatures){
+        const hasZero = temperatures.includes(0);
 
         if(hasZero){
             throw new Error("Zero division error");
         }
 
-        const temperaturesTotal = equalsTemperatures
-        .map(({value})=> value)
-        .reduce((acc, currentTemperature)=> acc / currentTemperature);
-
-        return {value:temperaturesTotal, scale: equalsTemperatures[0].scale}
+        return temperatures.reduce((acc, currentTemperature)=> acc / currentTemperature);
     }
 
-   #converTemperatures([firstTemperature, ...temperatures]){
-    const equalsTemperatures =  temperatures.map((currentTemperature)=>{
-        return currentTemperature === firstTemperature.scale 
-        ? currentTemperature 
-        : this.#converter.convertTemperature({temperature: currentTemperature, newScale: firstTemperature.scale})
-    })
+    #transformTemperature([firstTemperature, ...temperatures]){
+        const equalsTemperatures = temperatures.map((currentTemperature)=>{
+            return currentTemperature === firstTemperature.scale
+            ? currentTemperature
+            : this.#converter.convertTemperature({temperature: currentTemperature, scale: firstTemperature.scale})
+        });
 
-    return [firstTemperature, ...equalsTemperatures];
-   }
+        return [firstTemperature, ...equalsTemperatures];
+    }
 }
-
-const converter = new TemperatureConverter();
-const calculator = new TemperatureCalculator(converter);
-
-// console.log(calculator.add([{scale: "F", value: 33}, {scale:"C", value:77}]))
-console.log(calculator.add([{scale: "K", value: 22}, {scale:"F", value:10}]))
-

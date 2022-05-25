@@ -1,37 +1,37 @@
-import {TEMPERATURE_SCALES} from "./utils.js";
+import {TEMPERATURE_SCALES} from  "./utils.js";
 
 export class TemperatureConverter{
 
-    #scalesMappers = {
+    #scales = {
         [TEMPERATURE_SCALES.Kelvin]: this.#celsiusToKelvin,
         [TEMPERATURE_SCALES.Fahrenheit]: this.#celsiusToFahrenheit,
-        [TEMPERATURE_SCALES.Celsius]: (temperature) => temperature
+        [TEMPERATURE_SCALES.Celsius]: (temperature)=> temperature,
     }
 
-    convertTemperature({newScale, temperature}){
+
+    convertTemperature({temperature, scale}){
         const celsiusTemperature = this.#toCelsius(temperature);
-        return this.#scalesMappers[newScale](celsiusTemperature);
+        return this.#scales[scale](celsiusTemperature);
     }
 
-
-    #toCelsius(temperature){
+    #toCelsius({scale, value}){
         const celsiusMappers = {
-            [TEMPERATURE_SCALES.Kelvin]: (kelvins) => kelvins - 273.15,
-            [TEMPERATURE_SCALES.Fahrenheit]: (fahrenheits) => (fahrenheits -32) / 1.8
+            [TEMPERATURE_SCALES.Kelvin]: (kelvins)=> kelvins -273.15,
+            [TEMPERATURE_SCALES.Fahrenheit]: (fahrenheits)=> (fahrenheits - 32) / 1.8
         }
 
-        const mapper = celsiusMappers[temperature.scale];
-        const value = mapper ? mapper(temperature.value) : temperature.value;
-        return {scale: TEMPERATURE_SCALES.Celsius, value };
+        const mapper = celsiusMappers[scale];
+        const celsius = mapper ? mapper(value) : value;
+        return {value: celsius, scale: TEMPERATURE_SCALES.Celsius};
     }
 
-    #celsiusToKelvin(temperature){
-        const value = temperature.value + 273.15;
-        return {value, scale: TEMPERATURE_SCALES.Kelvin};
+    #celsiusToKelvin({value}){
+        const kelvins = value  + 273.15;
+        return {value: kelvins, scale: TEMPERATURE_SCALES.Kelvin}
     }
 
-    #celsiusToFahrenheit(temperature){
-        const value = temperature.value * 1.8 + 32;
-        return {value, scale: TEMPERATURE_SCALES.Fahrenheit};
+    #celsiusToFahrenheit({value}){
+        const fahrenheits = value * 1.8 + 32;
+        return {value: fahrenheits, scale: TEMPERATURE_SCALES.Fahrenheit};
     }
 }
