@@ -1,5 +1,5 @@
-export const TEMPERATURE_SCALES= { 
+export const TEMPERATURE_SCALES = {
     Celsius: "C",
     Fahrenheit: "F",
-    Kelvin:"K"
+    Kelvin: "K"
 }

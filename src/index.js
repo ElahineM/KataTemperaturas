@@ -1,29 +1,62 @@
-import {TemperatureConverter} from "./temperature-converter.js"
+import {TemperatureConverter} from "./temperature-converter.js";
 
-const converter = new TemperatureConverter();
+export class TemperatureCalculator{
+    #converter;
 
-export class TemperaturesCalculator{
+    constructor(converter){
+        this.#converter = converter; 
+    }
 
+    add(temperatures){
+       const equalsTemperatures =  this.#converTemperatures(temperatures);
+       const temperaturesTotal =  equalsTemperatures.reduce((acc, currentTemperature)=> acc + currentTemperature.value, 0);
+       return {value: temperaturesTotal, scale: equalsTemperatures[0].scale}
+    }
 
-    operate({temperatures, operation}){
-        const [firstTemperature,secondTemperature] = temperatures;
-        const secondOperationValue = firstTemperature.scale === secondTemperature.scale 
-        ? secondTemperature.value 
-        : this.convertTemperature({temperature: secondTemperature, newScale: firstTemperature.scale});
+    subtract(temperatures){
+        const equalsTemperatures = this.#converTemperatures(temperatures);
+        const temperaturesTotal = equalsTemperatures
+        .map(({value})=> value)
+        .reduce((acc, currentTemperature) => acc - currentTemperature)
+
+        return {value: temperaturesTotal, scale: equalsTemperatures[0].scale}
+    }
+
+    multiply(temperatures){
+        const equalsTemperatures = this.#converTemperatures(temperatures);
+        const temperaturesTotal =  equalsTemperatures        
+        .map(({value})=> value)
+        .reduce((acc, currentTemperature)=> acc * currentTemperature);
+
+        return {value: temperaturesTotal, scale: equalsTemperatures[0].scale} 
+    }
+
+    divide(temperatures){
+        const equalsTemperatures = this.#converTemperatures(temperatures);
         
+        const hasZero = equalsTemperatures.some(({value})=> value === 0);
+
+        if(hasZero){
+            throw new Error("Zero division error");
+        }
+
+        const temperaturesTotal = equalsTemperatures
+        .map(({value})=> value)
+        .reduce((acc, currentTemperature)=> acc / currentTemperature);
+
+        return {value:temperaturesTotal, scale: equalsTemperatures[0].scale}
     }
 
-    #add(firstTemperature, secondTemperature){
-        return firstTemperature + secondTemperature;
-    }
+   #converTemperatures([firstTemperature, ...temperatures]){
+    const equalsTemperatures =  temperatures.map((currentTemperature)=>{
+        return currentTemperature === firstTemperature.scale 
+        ? currentTemperature 
+        : this.#converter.convertTemperature({temperature: currentTemperature, newScale: firstTemperature.scale})
+    })
 
-    convertTemperature({temperature, newScale}){
-        return converter.convertTemperature({temperature, newScale});
-    }
+    return [firstTemperature, ...equalsTemperatures];
+   }
 }
 
-const calculator = new TemperaturesCalculator();
-
-calculator.operate({temperatures: [{value:30, scale:"C"}, {value: 55, scale: "F"}]});
 
 
