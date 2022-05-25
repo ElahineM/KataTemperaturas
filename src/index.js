@@ -58,5 +58,9 @@ export class TemperatureCalculator{
    }
 }
 
+const converter = new TemperatureConverter();
+const calculator = new TemperatureCalculator(converter);
 
+// console.log(calculator.add([{scale: "F", value: 33}, {scale:"C", value:77}]))
+console.log(calculator.add([{scale: "K", value: 22}, {scale:"F", value:10}]))
 
